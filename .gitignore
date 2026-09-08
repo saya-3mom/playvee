@@ -29,13 +29,15 @@ frontend/coverage
 frontend/.cache
 
 # =========================
-# Spring Boot / Gradle
+# Spring Boot / Maven
 # =========================
-backend/.gradle
-backend/build
-backend/out
+backend/target
+backend/*.class
+backend/**/*.class
 
+# =========================
 # IntelliJ
+# =========================
 backend/.idea
 
 # =========================
@@ -59,3 +61,5 @@ backend/.idea
 .cursorrules
 /brand
 /docs
+
+VSCode起動.bat
