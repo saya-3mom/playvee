@@ -1,6 +1,8 @@
 package com.playvee.backend.park.controller;
 
 import java.util.List;
+import org.springframework.web.bind.annotation.PathVariable;
+import com.playvee.backend.park.dto.ParkDetailResponse;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,5 +24,10 @@ public class ParkController {
     @GetMapping
     public List<ParkListResponse> getParks() {
         return parkService.getParks();
+    }
+
+    @GetMapping("/{id}")
+    public ParkDetailResponse getPark(@PathVariable("id") Long id) {
+        return parkService.getPark(id);
     }
 }

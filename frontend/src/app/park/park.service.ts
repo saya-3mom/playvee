@@ -11,4 +11,8 @@ export class ParkService {
   getParks(): Observable<Park[]> {
     return this.http.get<Park[]>(this.apiUrl);
   }
+
+  getPark(id: string): Observable<Park> {
+    return this.http.get<Park>(`${this.apiUrl}/${encodeURIComponent(id)}`);
+  }
 }

@@ -1,0 +1,11 @@
+<main>
+  <a routerLink="/parks">一覧へ戻る</a>
+  @if (loading()) {
+    <p role="status">読み込み中…</p>
+  } @else if (error()) {
+    <p role="alert">{{ error() }}</p>
+  } @else if (park(); as park) {
+    <h1>{{ park.name }}</h1>
+    <p>{{ park.address }}</p>
+  }
+</main>

@@ -8,7 +8,7 @@
     <ul>
       @for (park of parks(); track park.id) {
         <li>
-          <h2>{{ park.name }}</h2>
+          <h2><a [routerLink]="['/parks', park.id]">{{ park.name }}</a></h2>
           <p>{{ park.address }}</p>
         </li>
       } @empty {

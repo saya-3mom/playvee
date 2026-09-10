@@ -2,9 +2,11 @@ import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Park } from '../park';
 import { ParkService } from '../park.service';
+import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-park-list',
+  imports: [RouterLink],
   templateUrl: './park-list.html',
   styleUrl: './park-list.scss',
 })
