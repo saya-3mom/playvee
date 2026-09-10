@@ -4,10 +4,12 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, of, switchMap } from 'rxjs';
 import { Park } from '../park';
 import { ParkService } from '../park.service';
+import { MatCardModule } from '@angular/material/card';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-park-detail',
-  imports: [RouterLink],
+  imports: [RouterLink, MatCardModule, MatButtonModule],
   templateUrl: './park-detail.html',
   styleUrl: './park-detail.scss',
 })

@@ -1,10 +1,10 @@
 :host {
   display: block;
-  color: #222;
 }
 
 main {
-  max-width: 760px;
+  box-sizing: border-box;
+  max-width: 900px;
   margin: 0 auto;
   padding: 24px 16px;
   overflow-wrap: anywhere;
@@ -16,14 +16,11 @@ h1 {
 }
 
 ul {
+  display: grid;
+  gap: 16px;
   padding: 0;
   margin: 0;
   list-style: none;
-}
-
-li {
-  padding: 16px 0;
-  border-bottom: 1px solid #ddd;
 }
 
 h2 {
@@ -34,4 +31,15 @@ h2 {
 p {
   margin: 0;
   line-height: 1.6;
+}
+
+a {
+  color: #365b53;
+  text-decoration-color: #6ec1b4;
+  text-underline-offset: 4px;
+}
+
+a:focus-visible {
+  outline: 2px solid #365b53;
+  outline-offset: 4px;
 }

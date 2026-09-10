@@ -8,8 +8,12 @@
     <ul>
       @for (park of parks(); track park.id) {
         <li>
-          <h2><a [routerLink]="['/parks', park.id]">{{ park.name }}</a></h2>
-          <p>{{ park.address }}</p>
+          <mat-card appearance="outlined">
+            <mat-card-content>
+              <h2><a [routerLink]="['/parks', park.id]">{{ park.name }}</a></h2>
+              <p>{{ park.address }}</p>
+            </mat-card-content>
+          </mat-card>
         </li>
       } @empty {
         <li>公園がありません。</li>
