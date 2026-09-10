@@ -1,0 +1,19 @@
+<main>
+  <h1>公園一覧</h1>
+  @if (loading()) {
+    <p role="status">読み込み中…</p>
+  } @else if (failed()) {
+    <p role="alert">公園一覧を取得できませんでした。</p>
+  } @else {
+    <ul>
+      @for (park of parks(); track park.id) {
+        <li>
+          <h2>{{ park.name }}</h2>
+          <p>{{ park.address }}</p>
+        </li>
+      } @empty {
+        <li>公園がありません。</li>
+      }
+    </ul>
+  }
+</main>
