@@ -9,6 +9,28 @@
       <mat-card-content>
         <h1>{{ park.name }}</h1>
         <p>{{ park.address }}</p>
+        <section aria-labelledby="photos-heading">
+          <h2 id="photos-heading">写真</h2>
+          <label for="photo-file">写真を選択（JPEG・PNG、10MBまで）</label>
+          <input #photoInput id="photo-file" type="file" accept="image/jpeg,image/png"
+            [disabled]="uploading()" (change)="selectPhoto(photoInput)">
+          <button mat-stroked-button type="button" [disabled]="uploading() || !selectedFile()"
+            (click)="upload(photoInput)">{{ uploading() ? '送信中…' : 'アップロード' }}</button>
+          @if (uploadMessage()) {
+            <p [attr.role]="uploadFailed() ? 'alert' : 'status'">{{ uploadMessage() }}</p>
+          }
+          <div class="photos">
+            @for (photo of park.photos; track photo.id) {
+              @if (failedPhotos().includes(photo.id)) {
+                <p>写真を読み込めませんでした。</p>
+              } @else {
+                <img [src]="photo.url" [alt]="park.name + 'の写真'" loading="lazy" (error)="photoFailed(photo.id)">
+              }
+            } @empty {
+              <p>写真はまだありません。</p>
+            }
+          </div>
+        </section>
         <section aria-labelledby="facilities-heading">
           <h2 id="facilities-heading">設備情報</h2>
           <ul class="facilities">

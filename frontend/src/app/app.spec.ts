@@ -16,10 +16,11 @@ describe('App', () => {
         {
           provide: ParkService,
           useValue: {
+            uploadPhoto: () => of({ id: 10, url: '/api/parks/1/photos/10/image' }),
             updateFacility: () => of(null),
             getParks: () => of([{ id: 1, name: '中央公園', address: '東京都' }]),
             getPark: (id: string) => id === '1'
-              ? of({ id: 1, name: '中央公園', address: '東京都', facilities: [
+              ? of({ id: 1, name: '中央公園', address: '東京都', photos: [], facilities: [
                   { type: 'TOILET', status: 'EXISTS', lastCheckedOn: '2026-09-01' },
                   { type: 'DIAPER_CHANGING', status: 'UNKNOWN', lastCheckedOn: null },
                   { type: 'PARKING', status: 'NOT_EXISTS', lastCheckedOn: '2026-09-02' },
@@ -48,6 +49,26 @@ describe('App', () => {
     expect(compiled.querySelector('li p')?.textContent).toBe('東京都');
     expect(TestBed.inject(Router).url).toBe('/parks');
     expect(compiled.querySelector('li a')?.getAttribute('href')).toBe('/parks/1');
+  });
+
+  it('should append a photo without resetting facility edits', async () => {
+    const fixture = TestBed.createComponent(App);
+    await TestBed.inject(Router).navigateByUrl('/parks/1');
+    await fixture.whenStable();
+    const root = fixture.nativeElement as HTMLElement;
+    const date = root.querySelector('form input') as HTMLInputElement;
+    date.value = '2026-09-11';
+    date.dispatchEvent(new Event('input'));
+    const input = root.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(['test'], 'photo.jpg', { type: 'image/jpeg' });
+    Object.defineProperty(input, 'files', { value: [file], configurable: true });
+    input.dispatchEvent(new Event('change'));
+    await fixture.whenStable();
+    (root.querySelector('section button') as HTMLButtonElement).click();
+    await fixture.whenStable();
+    expect(root.querySelector('.photos img')?.getAttribute('src')).toBe('/api/parks/1/photos/10/image');
+    expect(date.value).toBe('2026-09-11');
+    expect(input.value).toBe('');
   });
 
   it('should disable the saving row and retain input after a failed save', async () => {

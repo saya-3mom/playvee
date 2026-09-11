@@ -21,16 +21,22 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      PLAYVEE_UPLOAD_DIR: /app/uploads/parks
+    volumes:
+      - photo_data:/app/uploads
     depends_on:
       - postgres
 
   frontend:
     build: ./frontend
     container_name: playvee-frontend
+    environment:
+      API_PROXY_TARGET: http://backend:8080
     ports:
       - "4200:4200"
     depends_on:
       - backend
 
 volumes:
+  photo_data:
   postgres_data:

@@ -1,6 +1,8 @@
 package com.playvee.backend.park.service;
 
 import java.util.List;
+import com.playvee.backend.park.repository.ParkPhotoRepository;
+import com.playvee.backend.park.dto.ParkPhotoResponse;
 import com.playvee.backend.park.dto.ParkFacilityUpdateRequest;
 import java.util.Arrays;
 import java.util.EnumMap;
@@ -23,9 +25,12 @@ import com.playvee.backend.park.repository.ParkRepository;
 public class ParkService {
 
     private final ParkRepository parkRepository;
+    private final ParkPhotoRepository parkPhotoRepository;
     private final ParkFacilityRepository parkFacilityRepository;
 
-    public ParkService(ParkRepository parkRepository, ParkFacilityRepository parkFacilityRepository) {
+    public ParkService(ParkRepository parkRepository, ParkFacilityRepository parkFacilityRepository,
+            ParkPhotoRepository parkPhotoRepository) {
+        this.parkPhotoRepository = parkPhotoRepository;
         this.parkRepository = parkRepository;
         this.parkFacilityRepository = parkFacilityRepository;
     }
@@ -44,7 +49,9 @@ public class ParkService {
                             ? new ParkFacilityResponse(type, FacilityStatus.UNKNOWN, null)
                             : new ParkFacilityResponse(type, facility.getStatus(), facility.getLastCheckedOn());
                 }).toList();
-        return new ParkDetailResponse(park.getId(), park.getName(), park.getAddress(), facilities);
+        var photos = parkPhotoRepository.findByPark_IdAndDeletedAtIsNullOrderByIdAsc(id).stream()
+                .map(photo -> ParkPhotoResponse.of(id, photo.getId())).toList();
+        return new ParkDetailResponse(park.getId(), park.getName(), park.getAddress(), facilities, photos);
     }
 
     @Transactional

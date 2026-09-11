@@ -51,6 +51,7 @@ backend/.idea
 
 # =========================
 # Temporary
+/backend/uploads/
 # =========================
 *.tmp
 *.temp
