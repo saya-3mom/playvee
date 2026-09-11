@@ -1,6 +1,7 @@
 package com.playvee.backend.park.service;
 
 import java.util.List;
+import com.playvee.backend.park.dto.ParkFacilityUpdateRequest;
 import java.util.Arrays;
 import java.util.EnumMap;
 import com.playvee.backend.park.dto.ParkFacilityResponse;
@@ -44,6 +45,19 @@ public class ParkService {
                             : new ParkFacilityResponse(type, facility.getStatus(), facility.getLastCheckedOn());
                 }).toList();
         return new ParkDetailResponse(park.getId(), park.getName(), park.getAddress(), facilities);
+    }
+
+    @Transactional
+    public ParkFacilityResponse updateFacility(Long parkId, FacilityType type,
+            ParkFacilityUpdateRequest request) {
+        var park = parkRepository.findByIdAndDeletedAtIsNull(parkId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        var facility = parkFacilityRepository.findByPark_IdAndFacilityType(parkId, type)
+                .orElseGet(() -> new ParkFacility(park, type, request.status(), request.lastCheckedOn()));
+        facility.restore();
+        facility.update(request.status(), request.lastCheckedOn());
+        var saved = parkFacilityRepository.save(facility);
+        return new ParkFacilityResponse(saved.getFacilityType(), saved.getStatus(), saved.getLastCheckedOn());
     }
 
     @Transactional(readOnly = true)

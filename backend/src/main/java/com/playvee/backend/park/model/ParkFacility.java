@@ -49,6 +49,11 @@ public class ParkFacility extends AbstractEntity {
         return facilityType;
     }
 
+    public void update(FacilityStatus status, LocalDate lastCheckedOn) {
+        this.status = status;
+        this.lastCheckedOn = lastCheckedOn;
+    }
+
     public FacilityStatus getStatus() {
         return status;
     }

@@ -1,6 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { App } from './app';
-import { of, throwError } from 'rxjs';
+import { of, throwError, Subject } from 'rxjs';
+import { vi } from 'vitest';
+import { ParkFacility } from './park/park-facility';
 import { provideRouter, Router } from '@angular/router';
 import { routes } from './app.routes';
 import { ParkService } from './park/park.service';
@@ -14,6 +16,7 @@ describe('App', () => {
         {
           provide: ParkService,
           useValue: {
+            updateFacility: () => of(null),
             getParks: () => of([{ id: 1, name: '中央公園', address: '東京都' }]),
             getPark: (id: string) => id === '1'
               ? of({ id: 1, name: '中央公園', address: '東京都', facilities: [
@@ -45,6 +48,37 @@ describe('App', () => {
     expect(compiled.querySelector('li p')?.textContent).toBe('東京都');
     expect(TestBed.inject(Router).url).toBe('/parks');
     expect(compiled.querySelector('li a')?.getAttribute('href')).toBe('/parks/1');
+  });
+
+  it('should disable the saving row and retain input after a failed save', async () => {
+    const fixture = TestBed.createComponent(App);
+    await TestBed.inject(Router).navigateByUrl('/parks/1');
+    await fixture.whenStable();
+    const response = new Subject<ParkFacility>();
+    const save = vi.spyOn(TestBed.inject(ParkService), 'updateFacility').mockReturnValue(response);
+    const root = fixture.nativeElement as HTMLElement;
+    const form = root.querySelector('form')!;
+    const date = form.querySelector('input')!;
+    date.value = '2026-09-11';
+    date.dispatchEvent(new Event('input'));
+    await fixture.whenStable();
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    await fixture.whenStable();
+    expect(save).toHaveBeenCalledWith(1, 'TOILET', { status: 'EXISTS', lastCheckedOn: '2026-09-11' });
+    expect(date.disabled).toBe(true);
+    expect(form.querySelector('button')!.disabled).toBe(true);
+    expect(root.querySelectorAll('form input')[1].hasAttribute('disabled')).toBe(false);
+    response.error({ status: 500 });
+    await fixture.whenStable();
+    expect(date.value).toBe('2026-09-11');
+    expect(date.disabled).toBe(false);
+    expect(form.querySelector('[role="alert"]')).not.toBeNull();
+
+    save.mockReturnValue(of({ type: 'TOILET', status: 'EXISTS', lastCheckedOn: '2026-09-11' }));
+    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    await fixture.whenStable();
+    expect(root.querySelector('.facilities li')!.textContent).toContain('最終確認日：2026-09-11');
+    expect(form.querySelector('[role="status"]')!.textContent).toContain('更新しました');
   });
 
   it('should render details and handle a missing park on the same route', async () => {

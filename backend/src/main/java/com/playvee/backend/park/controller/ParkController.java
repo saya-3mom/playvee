@@ -1,6 +1,12 @@
 package com.playvee.backend.park.controller;
 
 import java.util.List;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import com.playvee.backend.park.model.FacilityType;
+import com.playvee.backend.park.dto.ParkFacilityResponse;
+import com.playvee.backend.park.dto.ParkFacilityUpdateRequest;
 import org.springframework.web.bind.annotation.PathVariable;
 import com.playvee.backend.park.dto.ParkDetailResponse;
 
@@ -29,5 +35,12 @@ public class ParkController {
     @GetMapping("/{id}")
     public ParkDetailResponse getPark(@PathVariable("id") Long id) {
         return parkService.getPark(id);
+    }
+
+    @PutMapping("/{parkId}/facilities/{facilityType}")
+    public ParkFacilityResponse updateFacility(@PathVariable("parkId") Long parkId,
+            @PathVariable("facilityType") FacilityType facilityType,
+            @Valid @RequestBody ParkFacilityUpdateRequest request) {
+        return parkService.updateFacility(parkId, facilityType, request);
     }
 }

@@ -6,3 +6,8 @@ export interface ParkFacility {
   status: FacilityStatus;
   lastCheckedOn: string | null;
 }
+
+export interface ParkFacilityUpdateRequest {
+  status: FacilityStatus;
+  lastCheckedOn: string | null;
+}

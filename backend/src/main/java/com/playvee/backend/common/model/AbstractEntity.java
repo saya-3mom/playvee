@@ -50,4 +50,9 @@ public abstract class AbstractEntity {
     public Long getId() {
         return id;
     }
+
+    public void restore() {
+        deletedAt = null;
+        deletedBy = null;
+    }
 }

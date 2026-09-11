@@ -17,6 +17,28 @@
                 <h3>{{ facilityNames[facility.type] }}</h3>
                 <p>{{ statusNames[facility.status] }}</p>
                 <p>最終確認日：{{ facility.lastCheckedOn ?? '不明' }}</p>
+                @if (editors()[$index]; as editor) {
+                  <form #facilityForm="ngForm" (ngSubmit)="save(editor)">
+                    <mat-form-field appearance="outline">
+                      <mat-label>状態</mat-label>
+                      <mat-select name="status" [(ngModel)]="editor.status" required [disabled]="editor.saving">
+                        <mat-option value="EXISTS">ある</mat-option>
+                        <mat-option value="NOT_EXISTS">ない</mat-option>
+                        <mat-option value="UNKNOWN">不明</mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                    <mat-form-field appearance="outline">
+                      <mat-label>最終確認日</mat-label>
+                      <input matInput type="date" name="date" [(ngModel)]="editor.date" [disabled]="editor.saving">
+                    </mat-form-field>
+                    <button mat-stroked-button type="submit" [disabled]="editor.saving || facilityForm.invalid">
+                      {{ editor.saving ? '更新中…' : '更新' }}
+                    </button>
+                    @if (editor.message) {
+                      <p [attr.role]="editor.failed ? 'alert' : 'status'">{{ editor.message }}</p>
+                    }
+                  </form>
+                }
               </li>
             }
           </ul>
