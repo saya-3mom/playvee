@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Park } from './park';
+import { ParkDetail } from './park-detail';
 
 @Injectable({ providedIn: 'root' })
 export class ParkService {
@@ -12,7 +13,7 @@ export class ParkService {
     return this.http.get<Park[]>(this.apiUrl);
   }
 
-  getPark(id: string): Observable<Park> {
-    return this.http.get<Park>(`${this.apiUrl}/${encodeURIComponent(id)}`);
+  getPark(id: string): Observable<ParkDetail> {
+    return this.http.get<ParkDetail>(`${this.apiUrl}/${encodeURIComponent(id)}`);
   }
 }

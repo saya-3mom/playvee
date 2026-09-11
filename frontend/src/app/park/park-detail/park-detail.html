@@ -9,6 +9,18 @@
       <mat-card-content>
         <h1>{{ park.name }}</h1>
         <p>{{ park.address }}</p>
+        <section aria-labelledby="facilities-heading">
+          <h2 id="facilities-heading">設備情報</h2>
+          <ul class="facilities">
+            @for (facility of park.facilities; track facility.type) {
+              <li>
+                <h3>{{ facilityNames[facility.type] }}</h3>
+                <p>{{ statusNames[facility.status] }}</p>
+                <p>最終確認日：{{ facility.lastCheckedOn ?? '不明' }}</p>
+              </li>
+            }
+          </ul>
+        </section>
       </mat-card-content>
     </mat-card>
   }

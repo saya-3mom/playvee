@@ -2,7 +2,8 @@ import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, of, switchMap } from 'rxjs';
-import { Park } from '../park';
+import { ParkDetail as ParkDetailData } from '../park-detail';
+import { FacilityStatus, FacilityType } from '../park-facility';
 import { ParkService } from '../park.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -17,7 +18,13 @@ export class ParkDetail implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly service = inject(ParkService);
   private readonly destroyRef = inject(DestroyRef);
-  protected readonly park = signal<Park | null>(null);
+  protected readonly park = signal<ParkDetailData | null>(null);
+  protected readonly facilityNames: Record<FacilityType, string> = {
+    TOILET: 'トイレ', DIAPER_CHANGING: 'おむつ替え', PARKING: '駐車場', PLAYGROUND: '遊具',
+  };
+  protected readonly statusNames: Record<FacilityStatus, string> = {
+    EXISTS: 'ある', NOT_EXISTS: 'ない', UNKNOWN: '不明',
+  };
   protected readonly loading = signal(true);
   protected readonly error = signal('');
 

@@ -1,4 +1,7 @@
 package com.playvee.backend.park.dto;
 
-public record ParkDetailResponse(Long id, String name, String address) {
+import java.util.List;
+
+public record ParkDetailResponse(Long id, String name, String address,
+        List<ParkFacilityResponse> facilities) {
 }
