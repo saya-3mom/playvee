@@ -20,7 +20,7 @@ describe('App', () => {
             updateFacility: () => of(null),
             getParks: () => of([{ id: 1, name: '中央公園', address: '東京都' }]),
             getPark: (id: string) => id === '1'
-              ? of({ id: 1, name: '中央公園', address: '東京都', photos: [], facilities: [
+              ? of({ id: 1, name: '中央公園', address: '東京都', latitude: null, longitude: null, photos: [], facilities: [
                   { type: 'TOILET', status: 'EXISTS', lastCheckedOn: '2026-09-01' },
                   { type: 'DIAPER_CHANGING', status: 'UNKNOWN', lastCheckedOn: null },
                   { type: 'PARKING', status: 'NOT_EXISTS', lastCheckedOn: '2026-09-02' },

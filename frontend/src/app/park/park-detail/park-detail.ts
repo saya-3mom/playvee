@@ -1,4 +1,5 @@
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { afterRenderEffect, computed, ElementRef, viewChild } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, of, switchMap } from 'rxjs';
@@ -47,6 +48,49 @@ export class ParkDetail implements OnInit {
   protected readonly selectedFile = signal<File | null>(null);
   protected readonly failedPhotos = signal<number[]>([]);
   private pageVersion = 0;
+  private readonly mapElement = viewChild<ElementRef<HTMLDivElement>>('parkMap');
+  protected readonly mapError = signal(false);
+  protected readonly coordinates = computed(() => {
+    const park = this.park();
+    const lat = park?.latitude;
+    const lng = park?.longitude;
+    return lat != null && lng != null && Number.isFinite(lat) && Number.isFinite(lng)
+      && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180 ? `${lat},${lng}` : null;
+  });
+
+  constructor() {
+    afterRenderEffect(onCleanup => {
+      const element = this.mapElement()?.nativeElement;
+      const coordinates = this.coordinates();
+      if (!element || !coordinates) return;
+      let cancelled = false;
+      let map: import('leaflet').Map | undefined;
+      let observer: ResizeObserver | undefined;
+      this.mapError.set(false);
+      onCleanup(() => {
+        cancelled = true;
+        observer?.disconnect();
+        map?.remove();
+      });
+      void import('leaflet').then(L => {
+        if (cancelled) return;
+        const [latitude, longitude] = coordinates.split(',').map(Number);
+        map = L.map(element, { scrollWheelZoom: false }).setView([latitude, longitude], 16);
+        // Development MVP tiles; review the provider before public release.
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 19,
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
+        }).on('tileerror', () => { if (!cancelled) this.mapError.set(true); }).addTo(map);
+        L.marker([latitude, longitude], { icon: L.icon({
+          iconUrl: '/leaflet/marker-icon.png', iconRetinaUrl: '/leaflet/marker-icon-2x.png',
+          shadowUrl: '/leaflet/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41],
+          shadowSize: [41, 41],
+        }) }).addTo(map);
+        observer = new ResizeObserver(() => map?.invalidateSize());
+        observer.observe(element);
+      }).catch(() => { if (!cancelled) this.mapError.set(true); });
+    });
+  }
 
   protected selectPhoto(input: HTMLInputElement): void {
     this.selectedFile.set(input.files?.[0] ?? null);

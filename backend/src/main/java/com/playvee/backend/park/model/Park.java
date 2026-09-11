@@ -1,4 +1,5 @@
 package com.playvee.backend.park.model;
+import java.math.BigDecimal;
 
 import com.playvee.backend.common.model.AbstractEntity;
 
@@ -15,6 +16,15 @@ public class Park extends AbstractEntity {
 
     @Column(nullable = false, length = 500)
     private String address;
+
+    @Column(precision = 9, scale = 6)
+    private BigDecimal latitude;
+
+    @Column(precision = 10, scale = 6)
+    private BigDecimal longitude;
+
+    public BigDecimal getLatitude() { return latitude; }
+    public BigDecimal getLongitude() { return longitude; }
 
     protected Park() {
     }

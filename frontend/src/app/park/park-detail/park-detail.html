@@ -9,6 +9,17 @@
       <mat-card-content>
         <h1>{{ park.name }}</h1>
         <p>{{ park.address }}</p>
+        <section aria-labelledby="location-heading">
+          <h2 id="location-heading">場所</h2>
+          @if (coordinates()) {
+            <div #parkMap class="park-map" aria-label="公園の位置を示す地図"></div>
+            @if (mapError()) {
+              <p role="alert">地図を読み込めませんでした。</p>
+            }
+          } @else {
+            <p>位置情報は未登録です。</p>
+          }
+        </section>
         <section aria-labelledby="photos-heading">
           <h2 id="photos-heading">写真</h2>
           <label for="photo-file">写真を選択（JPEG・PNG、10MBまで）</label>

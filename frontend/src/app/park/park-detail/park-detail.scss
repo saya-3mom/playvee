@@ -28,6 +28,12 @@ section {
   margin-top: 32px;
 }
 
+.park-map {
+  height: 280px;
+  width: 100%;
+  isolation: isolate;
+}
+
 input[type='file'] {
   display: block;
   max-width: 100%;

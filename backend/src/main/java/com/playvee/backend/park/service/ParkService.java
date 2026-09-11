@@ -51,7 +51,8 @@ public class ParkService {
                 }).toList();
         var photos = parkPhotoRepository.findByPark_IdAndDeletedAtIsNullOrderByIdAsc(id).stream()
                 .map(photo -> ParkPhotoResponse.of(id, photo.getId())).toList();
-        return new ParkDetailResponse(park.getId(), park.getName(), park.getAddress(), facilities, photos);
+        return new ParkDetailResponse(park.getId(), park.getName(), park.getAddress(),
+                park.getLatitude(), park.getLongitude(), facilities, photos);
     }
 
     @Transactional
