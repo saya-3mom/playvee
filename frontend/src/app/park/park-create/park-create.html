@@ -1,0 +1,29 @@
+<main>
+  <a mat-stroked-button routerLink="/parks">一覧へ戻る</a>
+  <h1>公園を登録</h1>
+  <form (ngSubmit)="submit()">
+    <mat-form-field appearance="outline">
+      <mat-label>公園名</mat-label>
+      <input matInput name="name" [(ngModel)]="name" required maxlength="200" [disabled]="saving()">
+      <mat-error>公園名を200文字以内で入力してください。</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>住所</mat-label>
+      <input matInput name="address" [(ngModel)]="address" required maxlength="500" [disabled]="saving()">
+      <mat-error>住所を500文字以内で入力してください。</mat-error>
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>緯度（任意）</mat-label>
+      <input matInput name="latitude" inputmode="decimal" [(ngModel)]="latitude" [disabled]="saving()">
+    </mat-form-field>
+    @if (coordinateError(latitude, 90)) { <p role="alert">{{ coordinateError(latitude, 90) }}</p> }
+    <mat-form-field appearance="outline">
+      <mat-label>経度（任意）</mat-label>
+      <input matInput name="longitude" inputmode="decimal" [(ngModel)]="longitude" [disabled]="saving()">
+    </mat-form-field>
+    @if (coordinateError(longitude, 180)) { <p role="alert">{{ coordinateError(longitude, 180) }}</p> }
+    @if (pairError) { <p role="alert">緯度と経度は両方入力してください。</p> }
+    @if (error()) { <p role="alert">{{ error() }}</p> }
+    <button mat-stroked-button type="submit" [disabled]="saving()">{{ saving() ? '登録中…' : '登録' }}</button>
+  </form>
+</main>

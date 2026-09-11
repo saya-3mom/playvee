@@ -3,11 +3,15 @@ import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Park } from './park';
 import { ParkDetail } from './park-detail';
+import { ParkCreateRequest } from './park-create-request';
 import { ParkPhoto } from './park-photo';
 import { FacilityType, ParkFacility, ParkFacilityUpdateRequest } from './park-facility';
 
 @Injectable({ providedIn: 'root' })
 export class ParkService {
+  createPark(request: ParkCreateRequest): Observable<{ id: number }> {
+    return this.http.post<{ id: number }>(this.apiUrl, request);
+  }
   updateFacility(parkId: number, type: FacilityType, request: ParkFacilityUpdateRequest): Observable<ParkFacility> {
     return this.http.put<ParkFacility>(`${this.apiUrl}/${parkId}/facilities/${type}`, request);
   }

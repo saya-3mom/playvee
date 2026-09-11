@@ -34,6 +34,12 @@ public class Park extends AbstractEntity {
         this.address = address;
     }
 
+    public Park(String name, String address, BigDecimal latitude, BigDecimal longitude) {
+        this(name, address);
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
+
     public String getName() {
         return name;
     }

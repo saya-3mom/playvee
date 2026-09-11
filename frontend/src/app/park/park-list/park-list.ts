@@ -3,11 +3,12 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Park } from '../park';
 import { ParkService } from '../park.service';
 import { RouterLink } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-park-list',
-  imports: [RouterLink, MatCardModule],
+  imports: [RouterLink, MatCardModule, MatButtonModule],
   templateUrl: './park-list.html',
   styleUrl: './park-list.scss',
 })

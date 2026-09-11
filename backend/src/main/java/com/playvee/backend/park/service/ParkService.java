@@ -1,6 +1,9 @@
 package com.playvee.backend.park.service;
 
 import java.util.List;
+import com.playvee.backend.park.dto.ParkCreateRequest;
+import com.playvee.backend.park.dto.ParkCreateResponse;
+import com.playvee.backend.park.model.Park;
 import com.playvee.backend.park.repository.ParkPhotoRepository;
 import com.playvee.backend.park.dto.ParkPhotoResponse;
 import com.playvee.backend.park.dto.ParkFacilityUpdateRequest;
@@ -23,6 +26,15 @@ import com.playvee.backend.park.repository.ParkRepository;
 
 @Service
 public class ParkService {
+    @Transactional
+    public ParkCreateResponse createPark(ParkCreateRequest request) {
+        if ((request.latitude() == null) != (request.longitude() == null)) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Both coordinates are required");
+        }
+        var park = parkRepository.save(new Park(request.name(), request.address(),
+                request.latitude(), request.longitude()));
+        return new ParkCreateResponse(park.getId());
+    }
 
     private final ParkRepository parkRepository;
     private final ParkPhotoRepository parkPhotoRepository;

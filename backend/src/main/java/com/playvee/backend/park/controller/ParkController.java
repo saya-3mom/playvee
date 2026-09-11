@@ -1,6 +1,11 @@
 package com.playvee.backend.park.controller;
 
 import java.util.List;
+import java.net.URI;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import com.playvee.backend.park.dto.ParkCreateRequest;
+import com.playvee.backend.park.dto.ParkCreateResponse;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,6 +25,11 @@ import com.playvee.backend.park.service.ParkService;
 @RestController
 @RequestMapping("/api/parks")
 public class ParkController {
+    @PostMapping
+    public ResponseEntity<ParkCreateResponse> createPark(@Valid @RequestBody ParkCreateRequest request) {
+        var response = parkService.createPark(request);
+        return ResponseEntity.created(URI.create("/api/parks/" + response.id())).body(response);
+    }
 
     private final ParkService parkService;
 

@@ -16,6 +16,7 @@ describe('App', () => {
         {
           provide: ParkService,
           useValue: {
+            createPark: () => of({ id: 1 }),
             uploadPhoto: () => of({ id: 10, url: '/api/parks/1/photos/10/image' }),
             updateFacility: () => of(null),
             getParks: () => of([{ id: 1, name: '中央公園', address: '東京都' }]),
@@ -49,6 +50,25 @@ describe('App', () => {
     expect(compiled.querySelector('li p')?.textContent).toBe('東京都');
     expect(TestBed.inject(Router).url).toBe('/parks');
     expect(compiled.querySelector('li a')?.getAttribute('href')).toBe('/parks/1');
+  });
+
+  it('should create a park without coordinates and navigate to its details', async () => {
+    const fixture = TestBed.createComponent(App);
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/parks/new');
+    await fixture.whenStable();
+    const save = vi.spyOn(TestBed.inject(ParkService), 'createPark');
+    const root = fixture.nativeElement as HTMLElement;
+    for (const [name, value] of [['name', ' 中央公園 '], ['address', ' 東京都 ']]) {
+      const input = root.querySelector(`input[name="${name}"]`) as HTMLInputElement;
+      input.value = value;
+      input.dispatchEvent(new Event('input'));
+    }
+    await fixture.whenStable();
+    root.querySelector('form')!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    await fixture.whenStable();
+    expect(save).toHaveBeenCalledWith({ name: '中央公園', address: '東京都', latitude: null, longitude: null });
+    expect(router.url).toBe('/parks/1');
   });
 
   it('should append a photo without resetting facility edits', async () => {
