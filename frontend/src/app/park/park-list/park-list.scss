@@ -2,6 +2,12 @@
   display: block;
 }
 
+.create-link { margin-bottom: 24px; }
+.park-link { display: block; color: inherit; text-decoration: none; border-radius: 16px; }
+mat-card { box-shadow: 0 3px 12px #253d3510; }
+mat-card-content { position: relative; padding-right: 48px; }
+.chevron { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #365b53; font-size: 28px; }
+
 main {
   box-sizing: border-box;
   max-width: 900px;

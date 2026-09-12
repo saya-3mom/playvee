@@ -5,31 +5,21 @@
   } @else if (error()) {
     <p role="alert">{{ error() }}</p>
   } @else if (park(); as park) {
-    <mat-card appearance="outlined">
-      <mat-card-content>
+    <div class="park-content">
         <h1>{{ park.name }}</h1>
         <p>{{ park.address }}</p>
-        <section aria-labelledby="location-heading">
-          <h2 id="location-heading">場所</h2>
-          @if (coordinates()) {
-            <div #parkMap class="park-map" aria-label="公園の位置を示す地図"></div>
-            @if (mapError()) {
-              <p role="alert">地図を読み込めませんでした。</p>
-            }
-          } @else {
-            <p>位置情報は未登録です。</p>
-          }
-        </section>
         <section aria-labelledby="photos-heading">
           <h2 id="photos-heading">写真</h2>
+          <details><summary>写真を追加</summary>
           <label for="photo-file">写真を選択（JPEG・PNG、10MBまで）</label>
           <input #photoInput id="photo-file" type="file" accept="image/jpeg,image/png"
             [disabled]="uploading()" (change)="selectPhoto(photoInput)">
-          <button mat-stroked-button type="button" [disabled]="uploading() || !selectedFile()"
+          <button mat-flat-button type="button" [disabled]="uploading() || !selectedFile()"
             (click)="upload(photoInput)">{{ uploading() ? '送信中…' : 'アップロード' }}</button>
           @if (uploadMessage()) {
             <p [attr.role]="uploadFailed() ? 'alert' : 'status'">{{ uploadMessage() }}</p>
           }
+          </details>
           <div class="photos">
             @for (photo of park.photos; track photo.id) {
               @if (failedPhotos().includes(photo.id)) {
@@ -48,10 +38,16 @@
             @for (facility of park.facilities; track facility.type) {
               <li>
                 <h3>{{ facilityNames[facility.type] }}</h3>
-                <p>{{ statusNames[facility.status] }}</p>
+                <p class="facility-status" [class.exists]="facility.status === 'EXISTS'">{{ statusNames[facility.status] }}</p>
                 <p>最終確認日：{{ facility.lastCheckedOn ?? '不明' }}</p>
-                @if (editors()[$index]; as editor) {
-                  <form #facilityForm="ngForm" (ngSubmit)="save(editor)">
+              </li>
+            }
+          </ul>
+          <details class="facility-editor">
+            <summary>設備情報を更新</summary>
+            @for (editor of editors(); track editor.type) {
+                  <form #facilityForm="ngForm" (ngSubmit)="save(editor)" [attr.aria-label]="facilityNames[editor.type] + 'の更新'">
+                    <h3>{{ facilityNames[editor.type] }}</h3>
                     <mat-form-field appearance="outline">
                       <mat-label>状態</mat-label>
                       <mat-select name="status" [(ngModel)]="editor.status" required [disabled]="editor.saving">
@@ -64,19 +60,23 @@
                       <mat-label>最終確認日</mat-label>
                       <input matInput type="date" name="date" [(ngModel)]="editor.date" [disabled]="editor.saving">
                     </mat-form-field>
-                    <button mat-stroked-button type="submit" [disabled]="editor.saving || facilityForm.invalid">
+                    <button mat-flat-button type="submit" [disabled]="editor.saving || facilityForm.invalid">
                       {{ editor.saving ? '更新中…' : '更新' }}
                     </button>
                     @if (editor.message) {
                       <p [attr.role]="editor.failed ? 'alert' : 'status'">{{ editor.message }}</p>
                     }
                   </form>
-                }
-              </li>
             }
-          </ul>
+          </details>
         </section>
-      </mat-card-content>
-    </mat-card>
+        <section aria-labelledby="location-heading">
+          <h2 id="location-heading">場所</h2>
+          @if (coordinates()) {
+            <div #parkMap class="park-map" aria-label="公園の位置を示す地図"></div>
+            @if (mapError()) { <p role="alert">地図を読み込めませんでした。</p> }
+          } @else { <p>位置情報は未登録です。</p> }
+        </section>
+    </div>
   }
 </main>

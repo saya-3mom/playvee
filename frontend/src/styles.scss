@@ -22,6 +22,8 @@ html {
     outlined-outline-color: #e0e5e3,
   ));
   @include mat.button-overrides((
+    filled-container-shape: 24px,
+    outlined-container-shape: 24px,
     outlined-label-text-color: #365b53,
     outlined-outline-color: #6ec1b4,
   ));

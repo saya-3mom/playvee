@@ -12,6 +12,7 @@
       <input matInput name="address" [(ngModel)]="address" required maxlength="500" [disabled]="saving()">
       <mat-error>住所を500文字以内で入力してください。</mat-error>
     </mat-form-field>
+    <h2>位置情報（任意）</h2>
     <mat-form-field appearance="outline">
       <mat-label>緯度（任意）</mat-label>
       <input matInput name="latitude" inputmode="decimal" [(ngModel)]="latitude" [disabled]="saving()">
@@ -24,6 +25,6 @@
     @if (coordinateError(longitude, 180)) { <p role="alert">{{ coordinateError(longitude, 180) }}</p> }
     @if (pairError) { <p role="alert">緯度と経度は両方入力してください。</p> }
     @if (error()) { <p role="alert">{{ error() }}</p> }
-    <button mat-stroked-button type="submit" [disabled]="saving()">{{ saving() ? '登録中…' : '登録' }}</button>
+    <button mat-flat-button type="submit" [disabled]="saving()">{{ saving() ? '登録中…' : '登録' }}</button>
   </form>
 </main>

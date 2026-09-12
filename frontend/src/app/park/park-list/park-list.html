@@ -1,6 +1,6 @@
 <main>
   <h1>公園一覧</h1>
-  <a mat-stroked-button routerLink="/parks/new">公園を登録</a>
+  <a class="create-link" mat-flat-button routerLink="/parks/new">＋ 公園を登録</a>
   @if (loading()) {
     <p role="status">読み込み中…</p>
   } @else if (failed()) {
@@ -9,12 +9,15 @@
     <ul>
       @for (park of parks(); track park.id) {
         <li>
+          <a class="park-link" [routerLink]="['/parks', park.id]">
           <mat-card appearance="outlined">
             <mat-card-content>
-              <h2><a [routerLink]="['/parks', park.id]">{{ park.name }}</a></h2>
+              <h2>{{ park.name }}</h2>
               <p>{{ park.address }}</p>
+              <span class="chevron" aria-hidden="true">›</span>
             </mat-card-content>
           </mat-card>
+          </a>
         </li>
       } @empty {
         <li>公園がありません。</li>

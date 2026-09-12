@@ -99,6 +99,12 @@ describe('App', () => {
     const save = vi.spyOn(TestBed.inject(ParkService), 'updateFacility').mockReturnValue(response);
     const root = fixture.nativeElement as HTMLElement;
     const form = root.querySelector('form')!;
+    const editor = root.querySelector('.facility-editor') as HTMLDetailsElement;
+    expect(editor.open).toBe(false);
+    expect(editor.querySelectorAll('summary').length).toBe(1);
+    expect(editor.querySelectorAll('form').length).toBe(4);
+    editor.querySelector('summary')!.click();
+    expect(editor.open).toBe(true);
     const date = form.querySelector('input')!;
     date.value = '2026-09-11';
     date.dispatchEvent(new Event('input'));
@@ -130,7 +136,7 @@ describe('App', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('h1')?.textContent).toBe('中央公園');
     expect(compiled.querySelector('p')?.textContent).toBe('東京都');
-    expect(compiled.querySelector('a')?.getAttribute('href')).toBe('/parks');
+    expect(compiled.querySelector('main > a')?.getAttribute('href')).toBe('/parks');
     const facilities = compiled.querySelectorAll('.facilities li');
     expect(facilities.length).toBe(4);
     expect(Array.from(facilities, item => item.querySelector('h3')?.textContent))
