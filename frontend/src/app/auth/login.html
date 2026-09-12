@@ -1,0 +1,15 @@
+<main>
+  <h1>ログイン</h1>
+  <form #loginForm="ngForm" (ngSubmit)="submit()">
+    <mat-form-field appearance="outline">
+      <mat-label>ログインID</mat-label>
+      <input matInput name="loginId" [(ngModel)]="loginId" autocomplete="username" required [disabled]="busy()">
+    </mat-form-field>
+    <mat-form-field appearance="outline">
+      <mat-label>パスワード</mat-label>
+      <input matInput name="password" [(ngModel)]="password" type="password" autocomplete="current-password" required [disabled]="busy()">
+    </mat-form-field>
+    @if (error() || auth.message()) { <p role="alert">{{ error() || auth.message() }}</p> }
+    <button mat-flat-button type="submit" [disabled]="busy() || loginForm.invalid">{{ busy() ? 'ログイン中…' : 'ログイン' }}</button>
+  </form>
+</main>

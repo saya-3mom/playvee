@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { signal } from '@angular/core';
+import { AuthService } from './auth/auth.service';
 import { App } from './app';
 import { of, throwError, Subject } from 'rxjs';
 import { vi } from 'vitest';
@@ -12,6 +14,10 @@ describe('App', () => {
     await TestBed.configureTestingModule({
       imports: [App],
       providers: [
+        { provide: AuthService, useValue: {
+          user: signal({ id: 1, loginId: 'owner' }), message: signal(''),
+          check: () => of({ id: 1, loginId: 'owner' }),
+        } },
         provideRouter(routes),
         {
           provide: ParkService,
