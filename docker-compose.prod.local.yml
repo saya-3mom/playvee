@@ -1,0 +1,8 @@
+services:
+  backend:
+    environment:
+      SERVER_SERVLET_SESSION_COOKIE_SECURE: "false"
+
+  frontend:
+    ports: !override
+      - "8088:80"
