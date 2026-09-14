@@ -1,0 +1,33 @@
+services:
+
+  postgres:
+    image: postgres:16
+    container_name: playvee-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build: ./backend
+    container_name: playvee-backend
+    ports:
+      - "127.0.0.1:8081:8080"
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+      PLAYVEE_UPLOAD_DIR: /app/uploads/parks
+      PLAYVEE_BOOTSTRAP_LOGIN_ID: ${PLAYVEE_BOOTSTRAP_LOGIN_ID:-}
+      PLAYVEE_BOOTSTRAP_PASSWORD_HASH: ${PLAYVEE_BOOTSTRAP_PASSWORD_HASH:-}
+    volumes:
+      - photo_data:/app/uploads
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  photo_data:
