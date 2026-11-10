@@ -80,7 +80,11 @@ export class ParkDetail implements OnInit {
         L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
           maxZoom: 19,
           attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap contributors</a>',
-        }).on('tileerror', () => { if (!cancelled) this.mapError.set(true); }).addTo(map);
+        }).on('tileerror', (error) => {
+          console.error('地図タイルの読み込み失敗:', error);
+          if (!cancelled) this.mapError.set(true);
+        }).addTo(map);
+        //.on('tileerror', () => { if (!cancelled) this.mapError.set(true); }).addTo(map);
         L.marker([latitude, longitude], { icon: L.icon({
           iconUrl: '/leaflet/marker-icon.png', iconRetinaUrl: '/leaflet/marker-icon-2x.png',
           shadowUrl: '/leaflet/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41],
@@ -88,7 +92,11 @@ export class ParkDetail implements OnInit {
         }) }).addTo(map);
         observer = new ResizeObserver(() => map?.invalidateSize());
         observer.observe(element);
-      }).catch(() => { if (!cancelled) this.mapError.set(true); });
+      }).catch((error) => {
+        console.error('Leafletの初期化失敗:', error);
+        if (!cancelled) this.mapError.set(true);
+      });
+      //.catch(() => { if (!cancelled) this.mapError.set(true); });
     });
   }
 

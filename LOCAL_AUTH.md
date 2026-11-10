@@ -1,81 +1,256 @@
-# Local authentication
+# ローカル認証
 
-This configuration is for local HTTP development only, not public deployment.
-Open http://localhost:4200 and use the Angular `/api` proxy. Do not mix
-`localhost` and IP-address URLs: session and CSRF cookies belong to a host.
+この設定は、ローカルのHTTP開発環境専用です。
+公開環境でそのまま使用するものではありません。
 
-## Create the first account
+http://localhost:4200 を開き、Angularの `/api` プロキシ経由でBackendへアクセスしてください。
 
-1. In an interactive terminal with Java 17 and Maven available, run from `backend`:
+`localhost` とIPアドレスのURLを混在させないでください。
+セッションCookieとCSRF Cookieはホスト単位で管理されるためです。
 
-   ```powershell
-   .\mvnw.cmd dependency:copy-dependencies '-DincludeScope=runtime' '-DoutputDirectory=target/hash-tool-lib'
-   java --class-path "target/hash-tool-lib/*" tools/HashPassword.java
-   ```
+## 初回アカウントの作成
 
-   If the Maven wrapper cannot locate your Maven installation, use the same
-   command with `mvn` instead of `.\mvnw.cmd`.
-   Enter a strong unique password twice at the hidden prompts. The tool prints
-   only a DelegatingPasswordEncoder hash beginning with `{bcrypt}`.
-   Never pass the password as an argument, environment variable, SQL, or file.
-   The password is limited to 72 UTF-8 bytes by bcrypt.
+1. Java 17とMavenが利用できるターミナルで、`backend` ディレクトリから次を実行します。
 
-2. Add the following to the existing root `.env` (already Git-ignored), replacing
-   the placeholder with that complete hash. Single quotes preserve `$` in Compose:
+```powershell
+.\mvnw.cmd dependency:copy-dependencies '-DincludeScope=runtime' '-DoutputDirectory=target/hash-tool-lib'
+java --class-path "target/hash-tool-lib/*" tools/HashPassword.java
+```
 
-   ```dotenv
-   PLAYVEE_BOOTSTRAP_LOGIN_ID=owner
-   PLAYVEE_BOOTSTRAP_PASSWORD_HASH='{bcrypt}$2a$10$REPLACE_WITH_GENERATED_HASH'
-   ```
+Maven WrapperがMavenを見つけられない場合は、.\mvnw.cmd の代わりに mvn を使用してください。
 
-   Do not commit `.env`, publish the hash, or print resolved Compose environment
-   settings in logs. No actual password belongs in Git, application logs or DB.
+実行すると、パスワードの入力を2回求められます。
+入力内容は画面には表示されません。
 
-3. From the repository root run `docker compose up -d --build`.
-   Hibernate adds `app_users`. Only when that table is entirely empty does the
-   bootstrap runner create the account; it never overwrites or restores a user.
-   Both bootstrap settings may be absent, in which case no account is created.
-   Invalid supplied bootstrap values fail startup when the table is empty.
+強く、他サービスで使い回していないパスワードを入力してください。
 
-4. Log in at http://localhost:4200/login. After confirming login, remove the two
-   bootstrap variables from `.env` and recreate the backend:
-   `docker compose up -d --force-recreate backend`.
-   The account remains in PostgreSQL; the restart requires a new login.
+このツールは、
 
-For a backend started outside Docker, supply the same two bootstrap environment
-variables to that process (the root `.env` is not loaded by Spring automatically).
+{bcrypt}...
 
-## Behavior
+で始まる DelegatingPasswordEncoder 用のパスワードハッシュだけを出力します。
 
-- Sessions expire after 12 hours of inactivity and are not persisted on restart.
-- JSESSIONID is HttpOnly, SameSite=Lax, and deliberately not Secure on local HTTP.
-- Angular restores state using GET `/api/auth/me`; no credentials or login flag
-  are kept in localStorage. All park APIs and photo image URLs require login.
-- GET `/api/auth/csrf` issues the XSRF-TOKEN cookie. Angular sends it as
-  X-XSRF-TOKEN on relative mutating requests. Login/logout are CSRF-protected;
-  tokens are refreshed after them. Do not disable CSRF to test these endpoints.
-- POST `/api/auth/login` accepts form-urlencoded `loginId` and `password`:
-  success 200, invalid credentials 401. GET `/api/auth/me` returns id/loginId.
-  POST `/api/auth/logout` invalidates the session and returns 204.
-- An unauthenticated API request returns 401; an authenticated write with a bad
-  or missing CSRF token returns 403. Failed writes are never automatically retried.
+平文パスワードを、
 
-## Verification
+* コマンドライン引数
+* 環境変数
+* SQL
+* ファイル
 
-1. In a private browser window, open `/parks/new` or `/parks/1`: expect `/login`.
-   Direct requests to `/api/parks` and an existing photo URL must return 401.
-2. Try a wrong password, then the correct one. Expect an error, then the park list.
-3. Refresh a detail page; the session should remain valid. Confirm park creation,
-   facility updates, photo upload/display, and the existing map still work.
-4. In browser Network tools, confirm mutating API requests carry X-XSRF-TOKEN,
-   the login request has no credentials in its URL, and `/me` has no password hash.
-5. Log out and revisit a protected URL; expect login. Restart the backend and
-   retry an API operation from an old tab; expect 401 and login, with no write retry.
-6. Check a logically deleted test user cannot log in. Do this only with disposable
-   test data; bootstrap deliberately does not restore deleted accounts.
-7. Automated tests: from `backend`, `mvn test`; from `frontend`,
-   `npm test -- --watch=false` and `npm run build`.
-   Security integration tests use isolated H2, not the development PostgreSQL DB.
+に直接書かないでください。
 
-HTTPS, reverse proxy configuration, public port exposure, login rate limiting,
-production cookie settings and production schema migration remain separate tasks.
+bcryptの仕様上、パスワードはUTF-8で72バイトまでです。
+
+2. リポジトリ直下の既存 .env に、次の2行を追加します。
+
+.env はすでにGit管理対象外になっています。
+
+```env
+PLAYVEE_BOOTSTRAP_LOGIN_ID=owner
+PLAYVEE_BOOTSTRAP_PASSWORD_HASH='{bcrypt}$2a$10$REPLACE_WITH_GENERATED_HASH'
+```
+
+PLAYVEE_BOOTSTRAP_PASSWORD_HASH には、先ほど生成した完全なハッシュ値を設定してください。
+
+Composeでは $ が特別な意味を持つため、ハッシュ値はシングルクォートで囲みます。
+
+.env はGitへコミットしないでください。
+
+また、パスワードハッシュを公開したり、Composeで解決済みの環境変数をログへ出力したりしないでください。
+
+実際の平文パスワードを、
+
+* Git
+* アプリケーションログ
+* DB
+
+に保存してはいけません。
+
+3. リポジトリのルートで次を実行します。
+
+```PowerShell
+docker compose up -d --build
+```
+
+Hibernateによって app_users テーブルが追加されます。
+
+このテーブルが完全に空の場合に限り、Bootstrap処理が初期アカウントを1件作成します。
+
+既存ユーザーのパスワードを上書きしたり、論理削除済みユーザーを復元したりすることはありません。
+
+Bootstrap用の2つの設定値は、省略することもできます。
+その場合、初期アカウントは作成されません。
+
+app_users テーブルが空の状態で、不正なBootstrap設定が渡された場合は、Backendの起動を失敗させます。
+
+4. 次のURLからログインします。
+
+http://localhost:4200/login
+
+ログインできることを確認したら、.env から次の2つのBootstrap用変数を削除します。
+
+```env
+PLAYVEE_BOOTSTRAP_LOGIN_ID
+PLAYVEE_BOOTSTRAP_PASSWORD_HASH
+```
+
+その後、Backendコンテナを作り直します。
+
+```PowerShell
+docker compose up -d --force-recreate backend
+```
+
+アカウント情報自体はPostgreSQLに残ります。
+
+Backendを再起動するとセッションは失われるため、再ログインが必要です。
+
+BackendをDocker外で起動する場合は、この2つのBootstrap用環境変数をBackendプロセスへ直接渡してください。
+
+リポジトリ直下の .env は、Spring Bootから自動的には読み込まれません。
+
+## 認証の動作
+* セッションは、最後の操作から12時間で期限切れになります。
+* セッション情報はBackendの再起動後には保持されません。
+* JSESSIONID Cookieには HttpOnly と SameSite=Lax が設定されています。
+* ローカル環境はHTTPのため、Secure は意図的に無効です。
+* Angularは GET /api/auth/me を使ってログイン状態を復元します。
+* パスワードや「ログイン済み」というフラグをlocalStorageには保存しません。
+* 公園関連APIと写真画像URLはすべてログイン必須です。
+
+CSRF対策も有効です。
+
+GET /api/auth/csrf を呼ぶと、XSRF-TOKEN Cookieが発行されます。
+
+Angularは、POSTやPUTなどの更新系リクエストに、
+
+X-XSRF-TOKEN
+
+ヘッダーを付けて送信します。
+
+ログイン・ログアウトもCSRF保護の対象です。
+
+ログイン後・ログアウト後はCSRFトークンが更新されるため、再取得します。
+
+動作確認のためにCSRF保護を無効化しないでください。
+
+認証APIは次の通りです。
+
+## ログイン
+POST /api/auth/login
+
+application/x-www-form-urlencoded 形式で、
+
+loginId
+password
+
+を送信します。
+
+成功時：
+HTTP 200
+
+ログインIDまたはパスワードが正しくない場合：
+HTTP 401
+
+## ログイン状態確認
+
+GET /api/auth/me
+
+ログイン済みの場合、ユーザーIDとログインIDを返します。
+パスワードハッシュは返しません。
+
+## ログアウト
+
+POST /api/auth/logout
+
+セッションを破棄し、
+HTTP 204を返します。
+
+未ログイン状態で保護対象APIへアクセスした場合は、
+HTTP 401を返します。
+
+ログイン済みでも、CSRFトークンが不足している、または不正な状態で更新系APIを呼んだ場合は、
+HTTP 403を返します。
+
+失敗した更新リクエストを自動的に再送することはありません。
+
+## 動作確認
+
+1. シークレットブラウザを開き、次のような保護対象URLへ直接アクセスします。
+
+/parks/new
+/parks/1
+
+ログイン画面へ移動することを確認します。
+
+また、
+
+/api/parks
+
+や既存写真の画像URLへ直接アクセスした場合は、HTTP 401になることを確認します。
+
+2. 間違ったパスワードでログインし、そのあと正しいパスワードでログインします。
+
+最初はエラーが表示され、その後、公園一覧へ遷移することを確認します。
+
+3. 公園詳細画面を再読み込みします。
+
+セッションが維持されていることを確認します。
+
+あわせて、次の既存機能が引き続き動くことを確認します。
+
+* 公園登録
+* 設備情報更新
+* 写真アップロード
+* 写真表示
+* 地図表示
+
+4. ブラウザのNetworkタブで確認します。
+
+更新系APIリクエストに、
+X-XSRF-TOKEN
+ヘッダーが付いていることを確認します。
+
+ログインリクエストのURLに、ログインIDやパスワードが含まれていないことを確認します。
+
+/api/auth/me のレスポンスにパスワードハッシュが含まれていないことも確認します。
+
+5. ログアウトし、保護対象URLへ再度アクセスします。
+
+ログイン画面へ移動することを確認します。
+次にBackendを再起動します。
+
+再起動前から開いていたタブでAPI操作を行い、HTTP 401になってログイン画面へ戻ることを確認します。
+
+失敗した更新処理が勝手に再実行されないことも確認します。
+
+6. 論理削除済みのテストユーザーがログインできないことを確認します。
+
+この確認は、破棄してもよいテストデータだけを使ってください。
+
+Bootstrap処理は、論理削除済みユーザーを自動復元しません。
+
+7. 自動テストを実行します。
+
+Backend：
+```PowerShell
+mvn test
+```
+
+Frontend：
+```PowerShell
+npm test -- --watch=false
+npm run build
+```
+
+SecurityのIntegration Testでは、開発用PostgreSQLではなく、分離されたH2データベースを使用します。
+
+## 今後の別タスク
+
+以下は、ローカル認証機能とは分けて対応します。
+
+* HTTPS
+* リバースプロキシ設定
+* 公開ポートの制御
+* ログイン試行回数制限
+* 本番用Cookie設定
+* 本番用DBスキーママイグレーション
