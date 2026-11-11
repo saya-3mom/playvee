@@ -72,7 +72,9 @@ export class ParkDetail implements OnInit {
         observer?.disconnect();
         map?.remove();
       });
-      void import('leaflet').then(L => {
+      //void import('leaflet').then(L => {
+      void import('leaflet').then(module => {
+        const L = module.default ?? module;
         if (cancelled) return;
         const [latitude, longitude] = coordinates.split(',').map(Number);
         map = L.map(element, { scrollWheelZoom: false }).setView([latitude, longitude], 16);
